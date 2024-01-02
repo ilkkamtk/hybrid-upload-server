@@ -17,7 +17,8 @@ const fileFilter = (
 const upload = multer({dest: './uploads/', fileFilter});
 const router = express.Router();
 
-// TODO: Add auth middleware
+// TODO: validation
+
 router.route('/upload').post(authenticate, upload.single('file'), uploadFile);
 
 router.route('/delete/:filename').delete(authenticate, deleteFile);
