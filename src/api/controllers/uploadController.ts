@@ -13,9 +13,9 @@ const uploadFile = async (
   try {
     if (!req.file) {
       const err = new CustomError('file not valid', 400);
-      throw err;
+      next(err);
+      return;
     }
-
     const fileInfo: FileInfo = {
       filename: req.file.filename,
       user_id: res.locals.user.id,
@@ -25,6 +25,13 @@ const uploadFile = async (
 
     // change file name of req.file.path to filename
     fs.renameSync(req.file.path, `${req.file.destination}/${filename}`);
+    // if thumbnail exists, change thumbnail name of req.file.path + '_thumb' to filename + '_thumb'
+    if (fs.existsSync(`${req.file.path}-thumb.png`)) {
+      fs.renameSync(
+        `${req.file.path}-thumb.png`,
+        `${req.file.destination}/${filename}-thumb.png`
+      );
+    }
 
     const response = {
       message: 'file uploaded',
@@ -47,7 +54,8 @@ const deleteFile = async (
     const filename = req.params.filename;
     if (!filename) {
       const err = new CustomError('filename not valid', 400);
-      throw err;
+      next(err);
+      return;
     }
 
     // check if not admin
@@ -60,11 +68,22 @@ const deleteFile = async (
 
       if (decodedTokenFromFileName.user_id !== res.locals.user.id) {
         const err = new CustomError('user not authorized', 401);
-        throw err;
+        next(err);
+        return;
       }
     }
 
     // delete  from uploads folder
+    if (fs.existsSync(`./uploads/${filename}-thumb.png`)) {
+      fs.unlinkSync(`./uploads/${filename}-thumb.png`);
+    }
+
+    if (!fs.existsSync(`./uploads/${filename}`)) {
+      const err = new CustomError('file not found', 404);
+      next(err);
+      return;
+    }
+
     fs.unlinkSync(`./uploads/${filename}`);
 
     const response = {

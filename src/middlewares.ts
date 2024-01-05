@@ -1,10 +1,10 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import {NextFunction, Request, Response} from 'express';
 import ErrorResponse from './interfaces/ErrorResponse';
 import CustomError from './classes/CustomError';
-import sharp from 'sharp';
 import jwt from 'jsonwebtoken';
 import {User} from './interfaces/User';
+import path from 'path';
+import getVideoThumbnail from './utils/getVideoThumbnail';
 
 const notFound = (req: Request, res: Response, next: NextFunction) => {
   const error = new CustomError(`🔍 - Not Found - ${req.originalUrl}`, 404);
@@ -54,21 +54,28 @@ const authenticate = async (
   }
 };
 
-const makeThumbnail = async (
+const makeVideoThumbnail = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
   try {
-    console.log(req.file?.path);
-    await sharp(req.file?.path)
-      .resize(160, 160)
-      .png()
-      .toFile(req.file?.path + '_thumb');
+    if (!req.file) {
+      next(new CustomError('File not uploaded', 500));
+      return;
+    }
+    if (!req.file.mimetype.includes('video')) {
+      next();
+      return;
+    }
+
+    const src = path.join(__dirname, '..', 'uploads', req.file.filename);
+    console.log(src);
+    await getVideoThumbnail(src);
     next();
   } catch (error) {
     next(new CustomError('Thumbnail not created', 500));
   }
 };
 
-export {notFound, errorHandler, authenticate, makeThumbnail};
+export {notFound, errorHandler, authenticate, makeVideoThumbnail};
