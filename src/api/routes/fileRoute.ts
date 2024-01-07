@@ -1,7 +1,7 @@
 import express, {Request} from 'express';
 import {deleteFile, uploadFile} from '../controllers/uploadController';
 import multer, {FileFilterCallback} from 'multer';
-import {authenticate, makeVideoThumbnail} from '../../middlewares';
+import {authenticate, makeThumbnail} from '../../middlewares';
 
 const fileFilter = (
   request: Request,
@@ -21,7 +21,7 @@ const router = express.Router();
 
 router
   .route('/upload')
-  .post(authenticate, upload.single('file'), makeVideoThumbnail, uploadFile);
+  .post(authenticate, upload.single('file'), makeThumbnail, uploadFile);
 
 router.route('/delete/:filename').delete(authenticate, deleteFile);
 

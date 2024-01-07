@@ -37,6 +37,8 @@ const uploadFile = async (
       message: 'file uploaded',
       data: {
         filename,
+        media_type: req.file.mimetype,
+        filesize: req.file.size,
       },
     };
     res.json(response);
