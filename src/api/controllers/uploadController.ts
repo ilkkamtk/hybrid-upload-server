@@ -3,6 +3,7 @@ import CustomError from '../../classes/CustomError';
 import jwt from 'jsonwebtoken';
 import fs from 'fs';
 import {FileInfo, TokenContent} from '../../types/DBTypes';
+import {MessageResponse} from '../../types/MessageTypes';
 
 const uploadFile = async (
   req: Request,
@@ -53,7 +54,7 @@ const uploadFile = async (
 
 const deleteFile = async (
   req: Request<{filename: string}>,
-  res: Response<{}, {user: TokenContent}>,
+  res: Response<MessageResponse, {user: TokenContent}>,
   next: NextFunction
 ) => {
   try {
@@ -106,11 +107,8 @@ const deleteFile = async (
 
     fs.unlinkSync(`./uploads/${filename}`);
 
-    const response = {
-      message: 'file deleted',
-      data: {
-        filename,
-      },
+    const response: MessageResponse = {
+      message: 'File deleted',
     };
     res.json(response);
   } catch (error) {
