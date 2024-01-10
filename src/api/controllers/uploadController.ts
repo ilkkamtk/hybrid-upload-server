@@ -15,11 +15,13 @@ const uploadFile = async (
       next(err);
       return;
     }
+
     const fileInfo: FileInfo = {
-      filename: req.file.filename,
-      user_id: res.locals.user.user_id,
+      filename: req.file.filename, // filename is used as random string because multer creates a random string for filename
+      user_id: res.locals.user.user_id, // user_id is used to verify if user is owner of file
     };
 
+    // use fileinfo to create jwt token to be used as filename to store the owner of the file
     const filename = `${jwt.sign(
       fileInfo,
       process.env.JWT_SECRET as string
@@ -64,9 +66,23 @@ const deleteFile = async (
 
     // check if not admin
     if (res.locals.user.level_name !== 'Admin') {
+      // get filename without extension for jwt verification
+      // filename has multiple dots, so split by dot and remove last element
+      const filenameWithoutExtension = filename
+        .split('.')
+        .slice(0, -1)
+        .join('.');
+      if (!filenameWithoutExtension) {
+        const err = new CustomError('filename not valid', 400);
+        next(err);
+        return;
+      }
+
+      console.log('filenameWithoutExtension', filenameWithoutExtension);
+
       // check from token if user is owner of file
       const decodedTokenFromFileName = jwt.verify(
-        filename,
+        filenameWithoutExtension,
         process.env.JWT_SECRET as string
       ) as FileInfo;
 
