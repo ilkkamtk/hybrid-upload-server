@@ -1,13 +1,12 @@
 import {Request, Response, NextFunction} from 'express';
 import CustomError from '../../classes/CustomError';
 import jwt from 'jsonwebtoken';
-import {User} from '../../interfaces/User';
 import fs from 'fs';
-import {FileInfo} from '../../interfaces/FileInfo';
+import {FileInfo, TokenContent} from '../../types/DBTypes';
 
 const uploadFile = async (
   req: Request,
-  res: Response<{}, {user: User}>,
+  res: Response<{}, {user: TokenContent}>,
   next: NextFunction
 ) => {
   try {
@@ -18,10 +17,13 @@ const uploadFile = async (
     }
     const fileInfo: FileInfo = {
       filename: req.file.filename,
-      user_id: res.locals.user.id,
+      user_id: res.locals.user.user_id,
     };
 
-    const filename = jwt.sign(fileInfo, process.env.JWT_SECRET as string);
+    const filename = `${jwt.sign(
+      fileInfo,
+      process.env.JWT_SECRET as string
+    )}.${req.file.originalname.split('.').pop()}`;
 
     // change file name of req.file.path to filename
     fs.renameSync(req.file.path, `${req.file.destination}/${filename}`);
@@ -49,7 +51,7 @@ const uploadFile = async (
 
 const deleteFile = async (
   req: Request<{filename: string}>,
-  res: Response<{}, {user: User}>,
+  res: Response<{}, {user: TokenContent}>,
   next: NextFunction
 ) => {
   try {
@@ -61,14 +63,14 @@ const deleteFile = async (
     }
 
     // check if not admin
-    if (res.locals.user.role !== 'Admin') {
+    if (res.locals.user.level_name !== 'Admin') {
       // check from token if user is owner of file
       const decodedTokenFromFileName = jwt.verify(
         filename,
         process.env.JWT_SECRET as string
       ) as FileInfo;
 
-      if (decodedTokenFromFileName.user_id !== res.locals.user.id) {
+      if (decodedTokenFromFileName.user_id !== res.locals.user.user_id) {
         const err = new CustomError('user not authorized', 401);
         next(err);
         return;

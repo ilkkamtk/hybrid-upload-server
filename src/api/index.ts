@@ -1,7 +1,7 @@
 import express from 'express';
 
 import fileRoute from './routes/fileRoute';
-import MessageResponse from '../interfaces/MessageResponse';
+import {MessageResponse} from '../types/MessageTypes';
 
 const router = express.Router();
 

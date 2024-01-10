@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import {NextFunction, Request, Response} from 'express';
-import ErrorResponse from './interfaces/ErrorResponse';
+import {ErrorResponse} from './types/MessageTypes';
 import CustomError from './classes/CustomError';
 import jwt from 'jsonwebtoken';
-import {User} from './interfaces/User';
+import {TokenContent} from './types/DBTypes';
 import path from 'path';
 import getVideoThumbnail from './utils/getVideoThumbnail';
 import sharp from 'sharp';
@@ -39,16 +39,19 @@ const authenticate = async (
       next(new CustomError('Authentication failed', 401));
       return;
     }
+
     const token = authHeader.split(' ')[1];
     const decodedToken = jwt.verify(
       token,
       process.env.JWT_SECRET as string
-    ) as User;
+    ) as TokenContent;
+
     console.log(decodedToken);
     if (!decodedToken) {
       next(new CustomError('Authentication failed', 401));
       return;
     }
+
     res.locals.user = decodedToken;
     next();
   } catch (error) {
