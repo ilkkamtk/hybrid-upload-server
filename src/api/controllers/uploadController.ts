@@ -2,8 +2,8 @@ import {Request, Response, NextFunction} from 'express';
 import CustomError from '../../classes/CustomError';
 import jwt from 'jsonwebtoken';
 import fs from 'fs';
-import {FileInfo, TokenContent} from '../../types/DBTypes';
-import {MessageResponse} from '../../types/MessageTypes';
+import {FileInfo, TokenContent} from '@sharedTypes/DBTypes';
+import {MessageResponse} from '@sharedTypes/MessageTypes';
 
 const uploadFile = async (
   req: Request,

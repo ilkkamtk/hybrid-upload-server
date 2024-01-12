@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import {NextFunction, Request, Response} from 'express';
-import {ErrorResponse} from './types/MessageTypes';
+import {ErrorResponse} from '@sharedTypes/MessageTypes';
 import CustomError from './classes/CustomError';
 import jwt from 'jsonwebtoken';
-import {TokenContent} from './types/DBTypes';
+import {TokenContent} from '@sharedTypes/DBTypes';
 import path from 'path';
 import getVideoThumbnail from './utils/getVideoThumbnail';
 import sharp from 'sharp';

@@ -6,7 +6,7 @@ import cors from 'cors';
 
 import {notFound, errorHandler} from './middlewares';
 import api from './api';
-import {MessageResponse} from './types/MessageTypes';
+import {MessageResponse} from '@sharedTypes/MessageTypes';
 
 const app = express();
 
