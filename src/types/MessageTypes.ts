@@ -1,5 +1,3 @@
-import {LoginUser} from './DBTypes';
-
 type MessageResponse = {
   message: string;
 };
@@ -8,14 +6,12 @@ type ErrorResponse = MessageResponse & {
   stack?: string;
 };
 
-type LoginResponse = MessageResponse & {
-  token: string;
-  message: string;
-  user: Omit<LoginUser, 'password'>;
+type UploadResponse = MessageResponse & {
+  data: {
+    filename: string;
+    media_type: string;
+    filesize: number;
+  };
 };
 
-type UserResponse = MessageResponse & {
-  user: {user_id: number} | LoginUser;
-};
-
-export type {MessageResponse, ErrorResponse, LoginResponse, UserResponse};
+export type {MessageResponse, ErrorResponse, UploadResponse};

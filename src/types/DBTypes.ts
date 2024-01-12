@@ -13,7 +13,8 @@ type User = {
 };
 
 // type gymnastics to get rid of user_level_id from User type and replace it with level_name from UserLevel type
-type LoginUser = Omit<User, 'user_level_id'> & Pick<UserLevel, 'level_name'>;
+type UserWithLevel = Omit<User, 'user_level_id'> &
+  Pick<UserLevel, 'level_name'>;
 
 type TokenContent = Pick<User, 'user_id'> & Pick<UserLevel, 'level_name'>;
 
@@ -22,4 +23,4 @@ type FileInfo = {
   user_id: number;
 };
 
-export {UserLevel, User, LoginUser, TokenContent, FileInfo};
+export {UserLevel, User, UserWithLevel, TokenContent, FileInfo};
