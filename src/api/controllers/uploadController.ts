@@ -8,7 +8,7 @@ import {MessageResponse} from '@sharedTypes/MessageTypes';
 const uploadFile = async (
   req: Request,
   res: Response<{}, {user: TokenContent}>,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     if (!req.file) {
@@ -25,7 +25,7 @@ const uploadFile = async (
     // use fileinfo to create jwt token to be used as filename to store the owner of the file
     const filename = `${jwt.sign(
       fileInfo,
-      process.env.JWT_SECRET as string
+      process.env.JWT_SECRET as string,
     )}.${req.file.originalname.split('.').pop()}`;
 
     // change file name of req.file.path to filename
@@ -34,7 +34,7 @@ const uploadFile = async (
     if (fs.existsSync(`${req.file.path}-thumb.png`)) {
       fs.renameSync(
         `${req.file.path}-thumb.png`,
-        `${req.file.destination}/${filename}-thumb.png`
+        `${req.file.destination}/${filename}-thumb.png`,
       );
     }
 
@@ -55,7 +55,7 @@ const uploadFile = async (
 const deleteFile = async (
   req: Request<{filename: string}>,
   res: Response<MessageResponse, {user: TokenContent}>,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const filename = req.params.filename;
@@ -84,7 +84,7 @@ const deleteFile = async (
       // check from token if user is owner of file
       const decodedTokenFromFileName = jwt.verify(
         filenameWithoutExtension,
-        process.env.JWT_SECRET as string
+        process.env.JWT_SECRET as string,
       ) as FileInfo;
 
       if (decodedTokenFromFileName.user_id !== res.locals.user.user_id) {

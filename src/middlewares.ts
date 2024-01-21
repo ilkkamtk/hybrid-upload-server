@@ -6,7 +6,7 @@ import jwt from 'jsonwebtoken';
 import {TokenContent} from '@sharedTypes/DBTypes';
 import path from 'path';
 import getVideoThumbnail from './utils/getVideoThumbnail';
-import sharp from 'sharp';
+import jimp from 'jimp';
 
 const notFound = (req: Request, res: Response, next: NextFunction) => {
   const error = new CustomError(`🔍 - Not Found - ${req.originalUrl}`, 404);
@@ -17,7 +17,7 @@ const errorHandler = (
   err: CustomError,
   req: Request,
   res: Response<ErrorResponse>,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   console.error('errorHandler', err);
   res.status(err.status || 500);
@@ -30,7 +30,7 @@ const errorHandler = (
 const authenticate = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   console.log('authenticate');
   try {
@@ -43,7 +43,7 @@ const authenticate = async (
     const token = authHeader.split(' ')[1];
     const decodedToken = jwt.verify(
       token,
-      process.env.JWT_SECRET as string
+      process.env.JWT_SECRET as string,
     ) as TokenContent;
 
     console.log(decodedToken);
@@ -62,7 +62,7 @@ const authenticate = async (
 const makeThumbnail = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     if (!req.file) {
@@ -74,10 +74,9 @@ const makeThumbnail = async (
     console.log(src);
 
     if (!req.file.mimetype.includes('video')) {
-      await sharp(src)
-        .resize(320, 240)
-        .png()
-        .toFile(src + '-thumb.png');
+      const image = await jimp.read(src);
+      image.resize(320, jimp.AUTO);
+      await image.writeAsync(src + '-thumb.png');
       next();
       return;
     }
