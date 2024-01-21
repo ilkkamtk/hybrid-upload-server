@@ -14,7 +14,7 @@ app.use(morgan('dev'));
 app.use(
   helmet({
     crossOriginResourcePolicy: false,
-  })
+  }),
 );
 app.use(cors());
 app.use(express.json());

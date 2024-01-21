@@ -6,7 +6,7 @@ import {authenticate, makeThumbnail} from '../../middlewares';
 const fileFilter = (
   request: Request,
   file: Express.Multer.File,
-  cb: FileFilterCallback
+  cb: FileFilterCallback,
 ) => {
   if (file.mimetype.includes('image') || file.mimetype.includes('video')) {
     cb(null, true);
