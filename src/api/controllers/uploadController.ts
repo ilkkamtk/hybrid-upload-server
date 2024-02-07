@@ -3,11 +3,11 @@ import CustomError from '../../classes/CustomError';
 import jwt from 'jsonwebtoken';
 import fs from 'fs';
 import {FileInfo, TokenContent} from '@sharedTypes/DBTypes';
-import {MessageResponse} from '@sharedTypes/MessageTypes';
+import {MessageResponse, UploadResponse} from '@sharedTypes/MessageTypes';
 
 const uploadFile = async (
   req: Request,
-  res: Response<{}, {user: TokenContent}>,
+  res: Response<UploadResponse, {user: TokenContent}>,
   next: NextFunction,
 ) => {
   try {
@@ -38,7 +38,7 @@ const uploadFile = async (
       );
     }
 
-    const response = {
+    const response: UploadResponse = {
       message: 'file uploaded',
       data: {
         filename,
