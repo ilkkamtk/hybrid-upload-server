@@ -65,18 +65,15 @@ const makeThumbnail = async (
   next: NextFunction,
 ) => {
   try {
-    console.log(req.file);
     if (!req.file) {
       next(new CustomError('File not uploaded', 500));
       return;
     }
 
     const src = path.join(__dirname, '..', 'uploads', req.file.filename);
-    console.log(src);
 
     if (!req.file.mimetype.includes('video')) {
       const image = await jimp.read(src);
-      console.log(image);
       image.resize(320, jimp.AUTO);
       await image.writeAsync(src + '-thumb.png');
       next();
