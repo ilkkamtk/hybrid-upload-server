@@ -65,6 +65,7 @@ const makeThumbnail = async (
   next: NextFunction,
 ) => {
   try {
+    console.log(req.file);
     if (!req.file) {
       next(new CustomError('File not uploaded', 500));
       return;
