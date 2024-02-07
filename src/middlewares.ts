@@ -70,15 +70,18 @@ const makeThumbnail = async (
       return;
     }
 
-    const src = path.join(__dirname, '..', 'uploads', req.file.filename);
+    const src =
+      process.env.NODE_ENV === 'development'
+        ? path.join(__dirname, '..', 'uploads', req.file.path)
+        : req.file.path;
 
     console.log('polku', src);
 
     if (!req.file.mimetype.includes('video')) {
-      await sharp(req.file?.path)
+      await sharp(src)
         .resize(320, 320)
         .png()
-        .toFile(req.file?.path + '-thumb.png');
+        .toFile(src + '-thumb.png');
       next();
       return;
     }
