@@ -72,6 +72,8 @@ const makeThumbnail = async (
 
     const src = path.join(__dirname, '..', 'uploads', req.file.filename);
 
+    console.log('polku', src);
+
     if (!req.file.mimetype.includes('video')) {
       await sharp(req.file?.path)
         .resize(320, 320)
