@@ -76,6 +76,7 @@ const makeThumbnail = async (
 
     if (!req.file.mimetype.includes('video')) {
       const image = await jimp.read(src);
+      console.log(image);
       image.resize(320, jimp.AUTO);
       await image.writeAsync(src + '-thumb.png');
       next();
