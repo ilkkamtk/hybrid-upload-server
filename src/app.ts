@@ -13,6 +13,12 @@ app.use(morgan('dev'));
 app.use(
   helmet({
     crossOriginResourcePolicy: false,
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'", "'unsafe-eval'"],
+      },
+    },
   }),
 );
 app.use(cors());
