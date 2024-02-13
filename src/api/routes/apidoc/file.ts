@@ -17,8 +17,8 @@
  *     {
  *       "message": "file uploaded",
  *       "data": {
- *         "filename": "example.jpg",
- *         "media_type": "image/jpeg",
+ *         "filename": "example.png",
+ *         "media_type": "image/png",
  *         "filesize": 12345
  *       }
  *     }
