@@ -19,7 +19,7 @@
  *       "data": {
  *         "filename": "example.png",
  *         "media_type": "image/png",
- *         "filesize": 12345
+ *         "filesize": 23423
  *       }
  *     }
  *
