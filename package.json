@@ -7,8 +7,10 @@
     "start": "node dist/hybrid-upload-server/src/index.js",
     "dev": "nodemon src/index.ts",
     "build": "tsc",
+    "postbuild": "npm run apidoc",
     "lint": "eslint --fix src test",
-    "test": "jest --detectOpenHandles --forceExit"
+    "test": "jest --detectOpenHandles --forceExit",
+    "apidoc": "apidoc -c apidoc.json -o public/"
   },
   "repository": {
     "type": "git",
@@ -35,7 +37,7 @@
     "jsonwebtoken": "^9.0.2",
     "morgan": "^1.10.0",
     "multer": "^1.4.5-lts.1",
-    "sharp": "^0.33.2"
+    "sharp": "^0.32.0"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
@@ -51,6 +53,7 @@
     "@types/sharp": "^0.31.1",
     "@typescript-eslint/eslint-plugin": "^6.19.0",
     "@typescript-eslint/parser": "^6.19.0",
+    "apidoc": "^1.2.0",
     "eslint": "^8.56.0",
     "eslint-import-resolver-typescript": "^3.6.1",
     "eslint-plugin-import": "^2.29.1",

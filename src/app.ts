@@ -6,7 +6,6 @@ import cors from 'cors';
 
 import {notFound, errorHandler} from './middlewares';
 import api from './api';
-import {MessageResponse} from '@sharedTypes/MessageTypes';
 
 const app = express();
 
@@ -21,11 +20,8 @@ app.use(express.json());
 
 app.use('/uploads', express.static('uploads'));
 
-app.get<{}, MessageResponse>('/', (req, res) => {
-  res.json({
-    message: 'API location: api/v1',
-  });
-});
+// serve public folder for apidoc
+app.use(express.static('public'));
 
 app.use('/api/v1', api);
 
