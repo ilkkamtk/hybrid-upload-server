@@ -81,7 +81,11 @@ const makeThumbnail = async (
       await sharp(src)
         .resize(320, 320)
         .png()
-        .toFile(src + '-thumb.png');
+        .toFile(src + '-thumb.png')
+        .catch((error) => {
+          console.error('sharp error', error);
+          next(new CustomError('Thumbnail not created by sharp', 500));
+        });
       next();
       return;
     }
