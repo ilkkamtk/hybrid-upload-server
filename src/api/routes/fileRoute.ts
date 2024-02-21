@@ -8,6 +8,7 @@ const fileFilter = (
   file: Express.Multer.File,
   cb: FileFilterCallback,
 ) => {
+  console.log('file', file);
   if (file.mimetype.includes('image') || file.mimetype.includes('video')) {
     cb(null, true);
   } else {
