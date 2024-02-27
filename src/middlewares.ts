@@ -36,7 +36,7 @@ const authenticate = async (
   try {
     const authHeader = req.headers.authorization;
     if (!authHeader) {
-      next(new CustomError('Authentication failed', 401));
+      next(new CustomError('Authentication failed 1', 401));
       return;
     }
 
@@ -48,14 +48,14 @@ const authenticate = async (
 
     console.log(decodedToken);
     if (!decodedToken) {
-      next(new CustomError('Authentication failed', 401));
+      next(new CustomError('Authentication failed 2', 401));
       return;
     }
 
     res.locals.user = decodedToken;
     next();
   } catch (error) {
-    next(new CustomError('Authentication failed', 401));
+    next(new CustomError('Authentication failed 3', 401));
   }
 };
 
