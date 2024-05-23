@@ -10,11 +10,11 @@ if (process.env.NODE_ENV === 'production') {
     key: sslkey,
     cert: sslcert,
   };
-  const httpsPort = process.env.HTTPS_PORT || 8000;
+  const httpsPort = process.env.HTTPS_PORT || 8002;
   https.createServer(options, app).listen(httpsPort);
 }
 
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 3001;
 app.listen(port, () => {
   console.log(`Listening: http://localhost:${port}`);
 });
