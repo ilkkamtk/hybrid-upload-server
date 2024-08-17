@@ -90,7 +90,8 @@ const makeThumbnail = async (
       return;
     }
 
-    await getVideoThumbnail(src);
+    const screenshots: string[] = await getVideoThumbnail(src);
+    res.locals.screenshots = screenshots;
     next();
   } catch (error) {
     next(new CustomError('Thumbnail not created', 500));

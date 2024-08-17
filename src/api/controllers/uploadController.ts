@@ -3,11 +3,20 @@ import CustomError from '../../classes/CustomError';
 import jwt from 'jsonwebtoken';
 import fs from 'fs';
 import {FileInfo, TokenContent} from '@sharedTypes/DBTypes';
-import {MessageResponse, UploadResponse} from '@sharedTypes/MessageTypes';
+import {MessageResponse} from '@sharedTypes/MessageTypes';
+
+type UploadResponse = MessageResponse & {
+  data: {
+    filename: string;
+    media_type: string;
+    filesize: number;
+    screenshots?: string[];
+  };
+};
 
 const uploadFile = async (
   req: Request,
-  res: Response<UploadResponse, {user: TokenContent}>,
+  res: Response<UploadResponse, {user: TokenContent; screenshots: string[]}>,
   next: NextFunction,
 ) => {
   try {
@@ -46,6 +55,14 @@ const uploadFile = async (
         filesize: req.file.size,
       },
     };
+
+    // if file is video, get thumbnails
+    if (req.file.mimetype.includes('video')) {
+      // get thumbnails
+      const filenames = res.locals.screenshots;
+      response.data.screenshots = filenames;
+    }
+
     res.json(response);
   } catch (error) {
     next(new CustomError((error as Error).message, 400));
