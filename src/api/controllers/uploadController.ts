@@ -46,6 +46,22 @@ const uploadFile = async (
         `${req.file.destination}/${filename}-thumb.png`,
       );
     }
+    // if screenshots exist, change also screenshot names to match filename
+    if (res.locals.screenshots.length > 0) {
+      res.locals.screenshots = res.locals.screenshots.map((screenshot) => {
+        fs.renameSync(
+          screenshot,
+          `${req.file!.destination}/${filename}-thumb-${screenshot
+            .split('-')
+            .pop()}`,
+        );
+
+        // remove './uploads/' from screenshot path
+        screenshot = `${filename}-thumb-${screenshot.split('-').pop()}`;
+
+        return screenshot;
+      });
+    }
 
     const response: UploadResponse = {
       message: 'file uploaded',
