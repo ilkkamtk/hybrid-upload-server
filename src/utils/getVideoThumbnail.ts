@@ -1,7 +1,6 @@
 import ffmpeg from 'fluent-ffmpeg';
 
 const getVideoThumbnail = (videoUrl: string) => {
-  // resolves always because even if there is an error, ffmpeg will still create a thumbnail
   return new Promise((resolve) => {
     ffmpeg()
       .input(videoUrl)
@@ -9,8 +8,9 @@ const getVideoThumbnail = (videoUrl: string) => {
         resolve(true);
       })
       .screenshots({
-        count: 1,
-        filename: './uploads/%b-thumb.png',
+        count: 5, // Number of thumbnails to generate
+        filename: './uploads/%b-thumb-%i.png', // Filename pattern with index
+        size: '640x480', // Set the size of the thumbnails
       })
       .on('error', (error) => {
         console.error('ffmpeg', error);
