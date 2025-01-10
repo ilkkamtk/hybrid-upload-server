@@ -1,6 +1,6 @@
 # Upload serveri Hybridisovellukset kurssille
 
-- TypeScript tyypit on ladattu npm:llä `https://github.com/ilkkamtk/hybrid-types` reposta.
+- TypeScript tyypit on ladattu npm:llä https://github.com/ilkkamtk/hybrid-types reposta.
 
 - `http://localhost:3002/` enpointissa on Apidoc
 
