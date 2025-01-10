@@ -4,9 +4,9 @@ import multer, {FileFilterCallback} from 'multer';
 import {authenticate, makeThumbnail} from '../../middlewares';
 
 const fileFilter = (
-  request: Request,
+  _request: Request,
   file: Express.Multer.File,
-  cb: FileFilterCallback,
+  cb: FileFilterCallback
 ) => {
   console.log('file', file);
   if (file.mimetype.includes('image') || file.mimetype.includes('video')) {
@@ -17,8 +17,6 @@ const fileFilter = (
 };
 const upload = multer({dest: './uploads/', fileFilter});
 const router = express.Router();
-
-// TODO: validation
 
 router
   .route('/upload')
