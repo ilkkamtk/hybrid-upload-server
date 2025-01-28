@@ -1,4 +1,3 @@
-/* eslint-disable node/no-unpublished-import */
 import {Request, Response, NextFunction} from 'express';
 import CustomError from '../../classes/CustomError';
 import fs from 'fs';
@@ -44,7 +43,7 @@ const uploadFile = async (
         const targetThumbPath = `${UPLOAD_DIR}/${filename}-thumb.png`;
         fs.renameSync(thumbPath, targetThumbPath);
       }
-
+      console.log('täällä', res.locals.screenshots);
       if (res.locals.screenshots.length > 0) {
         res.locals.screenshots = res.locals.screenshots.map((screenshot) => {
           const screenshotName = screenshot.split('-').pop();

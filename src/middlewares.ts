@@ -1,4 +1,3 @@
-/* eslint-disable node/no-unpublished-import */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import {NextFunction, Request, Response} from 'express';
 import {ErrorResponse} from 'hybrid-types/MessageTypes';
@@ -18,7 +17,7 @@ const errorHandler = (
   err: CustomError,
   req: Request,
   res: Response<ErrorResponse>,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   console.error('errorHandler', err);
   res.status(err.status || 500);
@@ -31,7 +30,7 @@ const errorHandler = (
 const authenticate = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   console.log('authenticate');
   try {
@@ -44,7 +43,7 @@ const authenticate = async (
     const token = authHeader.split(' ')[1];
     const decodedToken = jwt.verify(
       token,
-      process.env.JWT_SECRET as string
+      process.env.JWT_SECRET as string,
     ) as TokenContent;
 
     console.log(decodedToken);
@@ -63,7 +62,7 @@ const authenticate = async (
 const makeThumbnail = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     if (!req.file) {
@@ -77,8 +76,9 @@ const makeThumbnail = async (
     //     : req.file.path;
 
     console.log('polku', req.file.path);
-res.locals.screenshots = [];
+    res.locals.screenshots = [];
     if (!req.file.mimetype.includes('video')) {
+      sharp.cache(false);
       await sharp(req.file.path)
         .resize(320, 320)
         .png()
@@ -87,6 +87,7 @@ res.locals.screenshots = [];
           console.error('sharp error', error);
           next(new CustomError('Thumbnail not created by sharp', 500));
         });
+      console.log('tn valmis');
       next();
       return;
     }
