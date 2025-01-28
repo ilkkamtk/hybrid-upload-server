@@ -6,9 +6,9 @@ const getVideoThumbnail = (videoUrl: string): Promise<string[]> => {
 
     ffmpeg()
       .input(videoUrl)
-      .complexFilter([
-        {filter: 'scale', options: '640:-1'}, // Scale width to 640, adjust height proportionally
-        {filter: 'crop', options: '640:480'}, // Crop the scaled video to 640x480
+      .outputOptions([
+        '-vf',
+        'scale=640:-1,crop=640:480', // Apply scale and crop filters directly
       ])
       .screenshots({
         count: 5, // Number of thumbnails to generate
