@@ -44,6 +44,7 @@ const uploadFile = async (
         const targetThumbPath = `${UPLOAD_DIR}/${filename}-thumb.png`;
         fs.renameSync(thumbPath, targetThumbPath);
       }
+      /*
 console.log('screens', res.locals.screenshots);
       if (res.locals.screenshots.length > 0) {
         res.locals.screenshots = res.locals.screenshots.map((screenshot) => {
@@ -57,6 +58,7 @@ console.log('screens', res.locals.screenshots);
           return `${filename}-thumb-${screenshotName}`;
         });
       }
+      */
     } catch {
       // Cleanup any created files on error
       cleanup(tempFiles);
@@ -73,11 +75,13 @@ console.log('screens', res.locals.screenshots);
     };
 
     // if file is video, get thumbnails
+    /*
     if (req.file.mimetype.includes('video')) {
       // get thumbnails
       const filenames = res.locals.screenshots;
       response.data.screenshots = filenames;
     }
+    */
 
     res.json(response);
   } catch (error) {
