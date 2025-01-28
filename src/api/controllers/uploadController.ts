@@ -1,9 +1,7 @@
 /* eslint-disable node/no-unpublished-import */
 import {Request, Response, NextFunction} from 'express';
 import CustomError from '../../classes/CustomError';
-import jwt from 'jsonwebtoken';
 import fs from 'fs';
-import {FileInfo} from 'hybrid-types/DBTypes';
 import {MessageResponse} from 'hybrid-types/MessageTypes';
 
 type UploadResponse = MessageResponse & {
@@ -20,48 +18,49 @@ const uploadFile = async (
   res: Response<UploadResponse>,
   next: NextFunction,
 ) => {
+  const tempFiles: string[] = [];
   try {
     if (!req.file) {
-      const err = new CustomError('file not valid', 400);
-      next(err);
-      return;
+      throw new CustomError('file not valid', 400);
     }
 
-    const fileInfo: FileInfo = {
-      filename: req.file.filename, // filename is used as random string because multer creates a random string for filename
-      user_id: res.locals.user.user_id, // user_id is used to verify if user is owner of file
-    };
-
-    // use fileinfo to create jwt token to be used as filename to store the owner of the file
-    const filename = `${jwt.sign(
-      fileInfo,
-      process.env.JWT_SECRET as string,
-    )}.${req.file.originalname.split('.').pop()}`;
-
-    // change file name of req.file.path to filename
-    fs.renameSync(req.file.path, `${req.file.destination}/${filename}`);
-    // if thumbnail exists, change thumbnail name of req.file.path + '_thumb' to filename + '_thumb'
-    if (fs.existsSync(`${req.file.path}-thumb.png`)) {
-      fs.renameSync(
-        `${req.file.path}-thumb.png`,
-        `${req.file.destination}/${filename}-thumb.png`,
-      );
+    const extension = req.file.originalname.split('.').pop();
+    if (!extension) {
+      throw new CustomError('Invalid file extension', 400);
     }
-    // if screenshots exist, change also screenshot names to match filename
-    if (res.locals.screenshots.length > 0) {
-      res.locals.screenshots = res.locals.screenshots.map((screenshot) => {
-        fs.renameSync(
-          screenshot,
-          `${req.file!.destination}/${filename}-thumb-${screenshot
-            .split('-')
-            .pop()}`,
-        );
 
-        // remove './uploads/' from screenshot path
-        screenshot = `${filename}-thumb-${screenshot.split('-').pop()}`;
+    // Append user_id to the random filename
+    const filename = `${req.file.filename}_${res.locals.user.user_id}.${extension}`;
+    const targetPath = `${UPLOAD_DIR}/${filename}`;
+    tempFiles.push(req.file.path);
 
-        return screenshot;
-      });
+    try {
+      fs.renameSync(req.file.path, targetPath);
+
+      const thumbPath = `${req.file.path}-thumb.png`;
+      if (fs.existsSync(thumbPath)) {
+        const targetThumbPath = `${UPLOAD_DIR}/${filename}-thumb.png`;
+        fs.renameSync(thumbPath, targetThumbPath);
+      }
+      /*
+console.log('screens', res.locals.screenshots);
+      if (res.locals.screenshots.length > 0) {
+        res.locals.screenshots = res.locals.screenshots.map((screenshot) => {
+          const screenshotName = screenshot.split('-').pop();
+          if (!screenshotName) {
+            throw new CustomError('Invalid screenshot name', 400);
+          }
+
+          const targetScreenshotPath = `${UPLOAD_DIR}/${filename}-thumb-${screenshotName}`;
+          fs.renameSync(screenshot, targetScreenshotPath);
+          return `${filename}-thumb-${screenshotName}`;
+        });
+      }
+      */
+    } catch {
+      // Cleanup any created files on error
+      cleanup(tempFiles);
+      throw new CustomError('Error processing files', 500);
     }
 
     const response: UploadResponse = {
@@ -74,15 +73,22 @@ const uploadFile = async (
     };
 
     // if file is video, get thumbnails
+    /*
     if (req.file.mimetype.includes('video')) {
       // get thumbnails
       const filenames = res.locals.screenshots;
       response.data.screenshots = filenames;
     }
+    */
 
     res.json(response);
   } catch (error) {
-    next(new CustomError((error as Error).message, 400));
+    cleanup(tempFiles);
+    next(
+      error instanceof CustomError
+        ? error
+        : new CustomError((error as Error).message, 400)
+    );
   }
 };
 
@@ -92,62 +98,56 @@ const deleteFile = async (
   next: NextFunction,
 ) => {
   try {
-    const filename = req.params.filename;
+    const {filename} = req.params;
     if (!filename) {
-      const err = new CustomError('filename not valid', 400);
-      next(err);
-      return;
+      throw new CustomError('filename not valid', 400);
     }
 
-    // check if not admin
+    // Check ownership by extracting user_id from filename
     if (res.locals.user.level_name !== 'Admin') {
-      // get filename without extension for jwt verification
-      // filename has multiple dots, so split by dot and remove last element
-      const filenameWithoutExtension = filename
-        .split('.')
-        .slice(0, -1)
-        .join('.');
-      if (!filenameWithoutExtension) {
-        const err = new CustomError('filename not valid', 400);
-        next(err);
-        return;
-      }
-
-      console.log('filenameWithoutExtension', filenameWithoutExtension);
-
-      // check from token if user is owner of file
-      const decodedTokenFromFileName = jwt.verify(
-        filenameWithoutExtension,
-        process.env.JWT_SECRET as string,
-      ) as FileInfo;
-
-      if (decodedTokenFromFileName.user_id !== res.locals.user.user_id) {
-        const err = new CustomError('user not authorized', 401);
-        next(err);
-        return;
+      const fileUserId = filename.split('_').pop()?.split('.')[0];
+      if (!fileUserId || fileUserId !== res.locals.user.user_id.toString()) {
+        throw new CustomError('user not authorized', 401);
       }
     }
 
-    // delete  from uploads folder
-    if (fs.existsSync(`./uploads/${filename}-thumb.png`)) {
-      fs.unlinkSync(`./uploads/${filename}-thumb.png`);
+    const filePath = `${UPLOAD_DIR}/${filename}`;
+    const thumbPath = `${UPLOAD_DIR}/${filename}-thumb.png`;
+
+    if (!fs.existsSync(filePath)) {
+      throw new CustomError('file not found', 404);
     }
 
-    if (!fs.existsSync(`./uploads/${filename}`)) {
-      const err = new CustomError('file not found', 404);
-      next(err);
-      return;
+    try {
+      if (fs.existsSync(thumbPath)) {
+        fs.unlinkSync(thumbPath);
+      }
+      fs.unlinkSync(filePath);
+    } catch {
+      throw new CustomError('Error deleting files', 500);
     }
 
-    fs.unlinkSync(`./uploads/${filename}`);
-
-    const response: MessageResponse = {
-      message: 'File deleted',
-    };
-    res.json(response);
+    res.json({message: 'File deleted'});
   } catch (error) {
-    next(new CustomError((error as Error).message, 400));
+    next(
+      error instanceof CustomError
+        ? error
+        : new CustomError((error as Error).message, 400)
+    );
   }
+};
+
+// Helper function to clean up temporary files
+const cleanup = (files: string[]) => {
+  files.forEach((file) => {
+    try {
+      if (fs.existsSync(file)) {
+        fs.unlinkSync(file);
+      }
+    } catch (error) {
+      console.error(`Error cleaning up file ${file}:`, error);
+    }
+  });
 };
 
 export {uploadFile, deleteFile};

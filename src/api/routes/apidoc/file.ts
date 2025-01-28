@@ -34,7 +34,7 @@
  *     }
  */
 /**
- * @api {delete} /upload/:filename Delete File
+ * @api {delete} /delete/:filename Delete File
  * @apiName DeleteFile
  * @apiGroup File
  *
