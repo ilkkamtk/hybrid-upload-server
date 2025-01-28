@@ -45,7 +45,7 @@ const uploadFile = async (
         fs.renameSync(thumbPath, targetThumbPath);
       }
 console.log('screens', res.locals.screenshots);
-      if (res.locals.screenshots && res.locals.screenshots.length > 0) {
+      if (res.locals.screenshots.length > 0) {
         res.locals.screenshots = res.locals.screenshots.map((screenshot) => {
           const screenshotName = screenshot.split('-').pop();
           if (!screenshotName) {
