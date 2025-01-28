@@ -1,7 +1,8 @@
+/* eslint-disable node/no-unpublished-import */
 import express from 'express';
 
 import fileRoute from './routes/fileRoute';
-import {MessageResponse} from '@sharedTypes/MessageTypes';
+import {MessageResponse} from 'hybrid-types/MessageTypes';
 
 const router = express.Router();
 

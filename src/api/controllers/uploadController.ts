@@ -1,9 +1,10 @@
+/* eslint-disable node/no-unpublished-import */
 import {Request, Response, NextFunction} from 'express';
 import CustomError from '../../classes/CustomError';
 import jwt from 'jsonwebtoken';
 import fs from 'fs';
-import {FileInfo, TokenContent} from '@sharedTypes/DBTypes';
-import {MessageResponse} from '@sharedTypes/MessageTypes';
+import {FileInfo} from 'hybrid-types/DBTypes';
+import {MessageResponse} from 'hybrid-types/MessageTypes';
 
 type UploadResponse = MessageResponse & {
   data: {
@@ -16,7 +17,7 @@ type UploadResponse = MessageResponse & {
 
 const uploadFile = async (
   req: Request,
-  res: Response<UploadResponse, {user: TokenContent; screenshots: string[]}>,
+  res: Response<UploadResponse>,
   next: NextFunction,
 ) => {
   try {
@@ -87,7 +88,7 @@ const uploadFile = async (
 
 const deleteFile = async (
   req: Request<{filename: string}>,
-  res: Response<MessageResponse, {user: TokenContent}>,
+  res: Response<MessageResponse>,
   next: NextFunction,
 ) => {
   try {

@@ -58,6 +58,7 @@
     "eslint-import-resolver-typescript": "^3.6.1",
     "eslint-plugin-import": "^2.29.1",
     "gts": "^5.2.0",
+    "hybrid-types": "github:ilkkamtk/hybrid-types",
     "nodemon": "^3.0.3",
     "ts-node": "^10.9.2",
     "typescript": "^5.3.3"
