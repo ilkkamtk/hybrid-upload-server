@@ -75,7 +75,7 @@ const makeThumbnail = async (
     //     ? path.join(__dirname, '..', 'uploads', req.file.path)
     //     : req.file.path;
 
-    console.log('polku', req.file.path);
+    console.log('polku täsä', req.file.path);
     res.locals.screenshots = [];
     if (!req.file.mimetype.includes('video')) {
       sharp.cache(false);
