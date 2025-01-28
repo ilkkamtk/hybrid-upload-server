@@ -6,6 +6,9 @@ const getVideoThumbnail = (videoUrl: string): Promise<string[]> => {
 
     ffmpeg()
       .input(videoUrl)
+      .videoFilters(
+        'scale=640:480:force_original_aspect_ratio=increase,crop=640:480',
+      )
       .screenshots({
         count: 5, // Number of thumbnails to generate
         filename: './uploads/%b-thumb-%i.png', // Filename pattern with index
