@@ -4,6 +4,8 @@ import CustomError from '../../classes/CustomError';
 import fs from 'fs';
 import {MessageResponse} from 'hybrid-types/MessageTypes';
 
+const UPLOAD_DIR = './uploads';
+
 type UploadResponse = MessageResponse & {
   data: {
     filename: string;
@@ -42,8 +44,7 @@ const uploadFile = async (
         const targetThumbPath = `${UPLOAD_DIR}/${filename}-thumb.png`;
         fs.renameSync(thumbPath, targetThumbPath);
       }
-      /*
-console.log('screens', res.locals.screenshots);
+
       if (res.locals.screenshots.length > 0) {
         res.locals.screenshots = res.locals.screenshots.map((screenshot) => {
           const screenshotName = screenshot.split('-').pop();
@@ -56,7 +57,6 @@ console.log('screens', res.locals.screenshots);
           return `${filename}-thumb-${screenshotName}`;
         });
       }
-      */
     } catch {
       // Cleanup any created files on error
       cleanup(tempFiles);
@@ -79,15 +79,14 @@ console.log('screens', res.locals.screenshots);
       const filenames = res.locals.screenshots;
       response.data.screenshots = filenames;
     }
-    */
-
+      */
     res.json(response);
   } catch (error) {
     cleanup(tempFiles);
     next(
       error instanceof CustomError
         ? error
-        : new CustomError((error as Error).message, 400)
+        : new CustomError((error as Error).message, 400),
     );
   }
 };
@@ -132,7 +131,7 @@ const deleteFile = async (
     next(
       error instanceof CustomError
         ? error
-        : new CustomError((error as Error).message, 400)
+        : new CustomError((error as Error).message, 400),
     );
   }
 };
