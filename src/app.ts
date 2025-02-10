@@ -20,9 +20,9 @@ app.use(
         scriptSrc: ["'self'", "'unsafe-eval'"],
       },
     },
-  })
+  }),
 );
-app.use(cors());
+app.use(cors({origin: '*'})); // *.metropolia.fi in production
 app.use(express.json());
 
 app.use('/uploads', express.static('uploads'));
