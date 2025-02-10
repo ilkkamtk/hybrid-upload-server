@@ -18,11 +18,12 @@ app.use(
       directives: {
         defaultSrc: ["'self'"],
         scriptSrc: ["'self'", "'unsafe-eval'"],
+        imgSrc: ['*'],
       },
     },
   }),
 );
-app.use(cors({origin: '*'})); // *.metropolia.fi in production
+app.use(cors());
 app.use(express.json());
 
 app.use('/uploads', express.static('uploads'));
