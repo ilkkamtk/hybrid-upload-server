@@ -70,20 +70,14 @@ const makeThumbnail = async (
       return;
     }
 
-    // Access the new filename from req.body
-    if (
-      !req.body.newFilename ||
-      typeof req.body.newFilename !== 'string' ||
-      req.body.newFilename.trim() === ''
-    ) {
-      next(
-        new CustomError('Invalid newFilename provided in request body', 400),
-      );
-      return;
-    }
-    const newFilename: string = req.body.newFilename; // Access the new filename from req.body
+    console.log('newFilename', req.file.filename);
 
-    const filePath = path.resolve(__dirname, '..', 'uploads', newFilename);
+    const filePath = path.resolve(
+      __dirname,
+      '..',
+      'uploads',
+      req.file.filename,
+    );
 
     console.log('polku täsä', filePath);
 
@@ -110,26 +104,4 @@ const makeThumbnail = async (
   }
 };
 
-const attachUserToRequest = (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
-  // since using a bit hacky way to get the user from body, make sure that no injections are made
-  if (req.body.user) {
-    delete req.body.user;
-  }
-
-  if (res.locals.user) {
-    req.body.user = res.locals.user;
-  }
-  next();
-};
-
-export {
-  notFound,
-  errorHandler,
-  authenticate,
-  makeThumbnail,
-  attachUserToRequest,
-};
+export {notFound, errorHandler, authenticate, makeThumbnail};
