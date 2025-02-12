@@ -1,15 +1,25 @@
 import express, {Request} from 'express';
 import {deleteFile, uploadFile} from '../controllers/uploadController';
 import multer, {FileFilterCallback} from 'multer';
-import {authenticate, makeThumbnail} from '../../middlewares';
+import {
+  authenticate,
+  makeThumbnail,
+  attachUserToRequest,
+} from '../../middlewares';
 
 const fileFilter = (
-  _request: Request,
+  request: Request,
   file: Express.Multer.File,
-  cb: FileFilterCallback
+  cb: FileFilterCallback,
 ) => {
   console.log('file', file);
   if (file.mimetype.includes('image') || file.mimetype.includes('video')) {
+    // Append user_id to the random filename
+    const userId = request.body.user?.user_id;
+    if (userId) {
+      const extension = file.originalname.split('.').pop();
+      file.filename = `${file.filename}_${userId}.${extension}`;
+    }
     cb(null, true);
   } else {
     cb(null, false);
@@ -20,7 +30,13 @@ const router = express.Router();
 
 router
   .route('/upload')
-  .post(authenticate, upload.single('file'), makeThumbnail, uploadFile);
+  .post(
+    authenticate,
+    attachUserToRequest,
+    upload.single('file'),
+    makeThumbnail,
+    uploadFile,
+  );
 
 router.route('/delete/:filename').delete(authenticate, deleteFile);
 
