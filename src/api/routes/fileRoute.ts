@@ -18,7 +18,9 @@ const fileFilter = (
     const userId = request.body.user?.user_id;
     if (userId) {
       const extension = file.originalname.split('.').pop();
-      file.filename = `${file.filename}_${userId}.${extension}`;
+      const newFilename = `${file.filename}_${userId}.${extension}`;
+      file.filename = newFilename;
+      request.body.newFilename = newFilename; // Store the new filename in req.body
     }
     cb(null, true);
   } else {
