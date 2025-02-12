@@ -23,7 +23,7 @@ const doUpload = (req: Request, res: Response, next: NextFunction) => {
       if (userId) {
         const extension = req.file.originalname.split('.').pop();
         const newFilename = `${req.file.filename}_${userId}.${extension}`;
-        req.file.filename = newFilename;
+        res.locals.newFilename = newFilename;
       }
     }
     next();
