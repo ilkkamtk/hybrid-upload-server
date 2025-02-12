@@ -70,7 +70,19 @@ const makeThumbnail = async (
       return;
     }
 
+    // Access the new filename from req.body
+    if (
+      !req.body.newFilename ||
+      typeof req.body.newFilename !== 'string' ||
+      req.body.newFilename.trim() === ''
+    ) {
+      next(
+        new CustomError('Invalid newFilename provided in request body', 400),
+      );
+      return;
+    }
     const newFilename: string = req.body.newFilename; // Access the new filename from req.body
+
     const filePath = path.resolve(__dirname, '..', 'uploads', newFilename);
 
     console.log('polku täsä', filePath);
