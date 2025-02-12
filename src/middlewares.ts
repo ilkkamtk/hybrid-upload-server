@@ -70,19 +70,29 @@ const makeThumbnail = async (
       return;
     }
 
-    // const src =
-    //   process.env.NODE_ENV === 'development'
-    //     ? path.join(__dirname, '..', 'uploads', req.file.path)
-    //     : req.file.path;
+    // Access the new filename from req.body
+    if (
+      !req.body.newFilename ||
+      typeof req.body.newFilename !== 'string' ||
+      req.body.newFilename.trim() === ''
+    ) {
+      next(
+        new CustomError('Invalid newFilename provided in request body', 400),
+      );
+      return;
+    }
+    const newFilename: string = req.body.newFilename; // Access the new filename from req.body
 
-    console.log('polku täsä', req.file.path);
+    const filePath = path.resolve(__dirname, '..', 'uploads', newFilename);
+
+    console.log('polku täsä', filePath);
 
     if (!req.file.mimetype.includes('video')) {
       sharp.cache(false);
-      await sharp(req.file.path)
+      await sharp(filePath)
         .resize(320, 320)
         .png()
-        .toFile(req.file.path + '-thumb.png')
+        .toFile(filePath + '-thumb.png')
         .catch((error) => {
           console.error('sharp error', error);
           next(new CustomError('Thumbnail not created by sharp', 500));
@@ -92,7 +102,7 @@ const makeThumbnail = async (
       return;
     }
 
-    await getVideoThumbnail(req.file.path);
+    await getVideoThumbnail(filePath);
 
     next();
   } catch (error) {
@@ -105,6 +115,11 @@ const attachUserToRequest = (
   res: Response,
   next: NextFunction,
 ) => {
+  // since using a bit hacky way to get the user from body, make sure that no injections are made
+  if (req.body.user) {
+    delete req.body.user;
+  }
+
   if (res.locals.user) {
     req.body.user = res.locals.user;
   }
