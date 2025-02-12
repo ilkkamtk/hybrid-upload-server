@@ -17,7 +17,7 @@ const errorHandler = (
   err: CustomError,
   req: Request,
   res: Response<ErrorResponse>,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   console.error('errorHandler', err);
   res.status(err.status || 500);
@@ -30,7 +30,7 @@ const errorHandler = (
 const authenticate = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   console.log('authenticate');
   try {
@@ -43,7 +43,7 @@ const authenticate = async (
     const token = authHeader.split(' ')[1];
     const decodedToken = jwt.verify(
       token,
-      process.env.JWT_SECRET as string
+      process.env.JWT_SECRET as string,
     ) as TokenContent;
 
     console.log(decodedToken);
@@ -62,7 +62,7 @@ const authenticate = async (
 const makeThumbnail = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     if (!req.file) {
@@ -75,8 +75,8 @@ const makeThumbnail = async (
     //     ? path.join(__dirname, '..', 'uploads', req.file.path)
     //     : req.file.path;
 
-    console.log('polku', req.file.path);
-
+    console.log('polku täsä', req.file.path);
+    res.locals.screenshots = [];
     if (!req.file.mimetype.includes('video')) {
       await sharp(req.file.path)
         .resize(320, 320)
@@ -90,7 +90,7 @@ const makeThumbnail = async (
       return;
     }
 
-    const screenshots: string[] = await getVideoThumbnail(req.file.path);
+    const screenshots = await getVideoThumbnail(req.file.path);
     res.locals.screenshots = screenshots;
     next();
   } catch (error) {
@@ -98,4 +98,21 @@ const makeThumbnail = async (
   }
 };
 
-export {notFound, errorHandler, authenticate, makeThumbnail};
+const attachUserToRequest = (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  if (res.locals.user) {
+    req.body.user = res.locals.user;
+  }
+  next();
+};
+
+export {
+  notFound,
+  errorHandler,
+  authenticate,
+  makeThumbnail,
+  attachUserToRequest,
+};
