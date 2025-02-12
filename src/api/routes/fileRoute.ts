@@ -13,6 +13,11 @@ const fileFilter = (
   cb: FileFilterCallback,
 ) => {
   console.log('file', file);
+  // since using a bit hacky way to get the filename from body, make sure that no injections are made
+  if (request.body.newFilename) {
+    cb(null, false);
+  }
+
   if (file.mimetype.includes('image') || file.mimetype.includes('video')) {
     // Append user_id to the random filename
     const userId = request.body.user?.user_id;

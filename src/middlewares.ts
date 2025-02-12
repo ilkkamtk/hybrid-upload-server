@@ -71,7 +71,7 @@ const makeThumbnail = async (
     }
 
     const newFilename: string = req.body.newFilename; // Access the new filename from req.body
-    const filePath = path.join('./uploads', newFilename);
+    const filePath = path.resolve(__dirname, '..', 'uploads', newFilename);
 
     console.log('polku täsä', filePath);
 
@@ -103,6 +103,11 @@ const attachUserToRequest = (
   res: Response,
   next: NextFunction,
 ) => {
+  // since using a bit hacky way to get the user from body, make sure that no injections are made
+  if (req.body.newFilename) {
+    next(new CustomError('no hacking', 400));
+  }
+
   if (res.locals.user) {
     req.body.user = res.locals.user;
   }
