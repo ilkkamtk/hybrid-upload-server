@@ -104,8 +104,8 @@ const attachUserToRequest = (
   next: NextFunction,
 ) => {
   // since using a bit hacky way to get the user from body, make sure that no injections are made
-  if (req.body.newFilename) {
-    next(new CustomError('no hacking', 400));
+  if (req.body.user) {
+    delete req.body.user;
   }
 
   if (res.locals.user) {

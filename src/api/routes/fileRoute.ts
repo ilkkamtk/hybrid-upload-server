@@ -15,7 +15,7 @@ const fileFilter = (
   console.log('file', file);
   // since using a bit hacky way to get the filename from body, make sure that no injections are made
   if (request.body.newFilename) {
-    cb(null, false);
+    delete request.body.newFilename;
   }
 
   if (file.mimetype.includes('image') || file.mimetype.includes('video')) {
