@@ -65,18 +65,18 @@ const makeThumbnail = async (
   next: NextFunction,
 ) => {
   try {
-    if (!req.file) {
+    if (!res.locals.newFilename || !req.file) {
       next(new CustomError('File not uploaded', 500));
       return;
     }
 
-    console.log('newFilename', req.file.filename);
+    console.log('newFilename', res.locals.newFilename);
 
     const filePath = path.resolve(
       __dirname,
       '..',
       'uploads',
-      req.file.filename,
+      res.locals.newFilename,
     );
 
     console.log('polku täsä', filePath);
