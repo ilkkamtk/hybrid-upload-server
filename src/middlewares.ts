@@ -76,7 +76,7 @@ const makeThumbnail = async (
     //     : req.file.path;
 
     console.log('polku täsä', req.file.path);
-    res.locals.screenshots = [];
+    // res.locals.screenshots = [];
     if (!req.file.mimetype.includes('video')) {
       sharp.cache(false);
       await sharp(req.file.path)
@@ -92,8 +92,8 @@ const makeThumbnail = async (
       return;
     }
 
-    const screenshots: string[] = await getVideoThumbnail(req.file.path);
-    res.locals.screenshots = screenshots;
+    // const screenshots: string[] = await getVideoThumbnail(req.file.path);
+    /// res.locals.screenshots = screenshots;
     next();
   } catch (error) {
     next(new CustomError('Thumbnail not created', 500));
