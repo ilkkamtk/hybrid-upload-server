@@ -18,9 +18,10 @@ app.use(
       directives: {
         defaultSrc: ["'self'"],
         scriptSrc: ["'self'", "'unsafe-eval'"],
+        imgSrc: ['*'],
       },
     },
-  })
+  }),
 );
 app.use(cors());
 app.use(express.json());

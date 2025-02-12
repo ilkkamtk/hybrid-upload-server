@@ -1,7 +1,6 @@
 import {Request, Response, NextFunction} from 'express';
 import CustomError from '../../classes/CustomError';
 import fs from 'fs';
-import {TokenContent} from 'hybrid-types/DBTypes';
 import {MessageResponse} from 'hybrid-types/MessageTypes';
 
 const UPLOAD_DIR = './uploads';
@@ -17,7 +16,7 @@ type UploadResponse = MessageResponse & {
 
 const uploadFile = async (
   req: Request,
-  res: Response<UploadResponse, {user: TokenContent; screenshots: string[]}>,
+  res: Response<UploadResponse>,
   next: NextFunction,
 ) => {
   const tempFiles: string[] = [];
@@ -30,7 +29,7 @@ const uploadFile = async (
     if (!extension) {
       throw new CustomError('Invalid file extension', 400);
     }
-
+   
     const response: UploadResponse = {
       message: 'file uploaded',
       data: {
@@ -53,7 +52,7 @@ const uploadFile = async (
 
 const deleteFile = async (
   req: Request<{filename: string}>,
-  res: Response<MessageResponse, {user: TokenContent}>,
+  res: Response<MessageResponse>,
   next: NextFunction,
 ) => {
   try {

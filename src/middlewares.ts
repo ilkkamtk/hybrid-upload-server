@@ -3,10 +3,10 @@ import {NextFunction, Request, Response} from 'express';
 import {ErrorResponse} from 'hybrid-types/MessageTypes';
 import CustomError from './classes/CustomError';
 import jwt from 'jsonwebtoken';
-import {TokenContent} from 'hybrid-types/DBTypes';
 import path from 'path';
 import getVideoThumbnail from './utils/getVideoThumbnail';
 import sharp from 'sharp';
+import {TokenContent} from 'hybrid-types/DBTypes';
 
 const notFound = (req: Request, res: Response, next: NextFunction) => {
   const error = new CustomError(`🔍 - Not Found - ${req.originalUrl}`, 404);
@@ -76,7 +76,9 @@ const makeThumbnail = async (
     //     : req.file.path;
 
     console.log('polku täsä', req.file.path);
+
     if (!req.file.mimetype.includes('video')) {
+      sharp.cache(false);
       await sharp(req.file.path)
         .resize(320, 320)
         .png()
@@ -85,11 +87,13 @@ const makeThumbnail = async (
           console.error('sharp error', error);
           next(new CustomError('Thumbnail not created by sharp', 500));
         });
+      console.log('tn valmis');
       next();
       return;
     }
 
     await getVideoThumbnail(req.file.path);
+
     next();
   } catch (error) {
     next(new CustomError('Thumbnail not created', 500));
