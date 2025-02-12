@@ -1,49 +1,38 @@
-import express, {Request} from 'express';
+import express, {NextFunction, Request, Response} from 'express';
 import {deleteFile, uploadFile} from '../controllers/uploadController';
-import multer, {FileFilterCallback} from 'multer';
-import {
-  authenticate,
-  makeThumbnail,
-  attachUserToRequest,
-} from '../../middlewares';
+import multer from 'multer';
+import {authenticate, makeThumbnail} from '../../middlewares';
+import CustomError from '../../classes/CustomError';
+const upload = multer({dest: './uploads/'}).single('file');
 
-const fileFilter = (
-  request: Request,
-  file: Express.Multer.File,
-  cb: FileFilterCallback,
-) => {
-  console.log('file', file);
-  // since using a bit hacky way to get the filename from body, make sure that no injections are made
-  if (request.body.newFilename) {
-    delete request.body.newFilename;
-  }
-
-  if (file.mimetype.includes('image') || file.mimetype.includes('video')) {
-    // Append user_id to the random filename
-    const userId = request.body.user?.user_id;
-    if (userId) {
-      const extension = file.originalname.split('.').pop();
-      const newFilename = `${file.filename}_${userId}.${extension}`;
-      file.filename = newFilename;
-      request.body.newFilename = newFilename; // Store the new filename in req.body
+const doUpload = (req: Request, res: Response, next: NextFunction) => {
+  console.log('doUpload', res.locals);
+  upload(req, res, (err) => {
+    if (err) {
+      next(new CustomError(err.message, 400));
+      return;
     }
-    cb(null, true);
-  } else {
-    cb(null, false);
-  }
+
+    if (
+      req.file &&
+      (req.file.mimetype.includes('image') ||
+        req.file.mimetype.includes('video'))
+    ) {
+      // Append user_id to the random filename
+      const userId = res.locals.user_id;
+      if (userId) {
+        const extension = req.file.originalname.split('.').pop();
+        const newFilename = `${req.file.filename}_${userId}.${extension}`;
+        req.file.filename = newFilename;
+      }
+    }
+    next();
+  });
 };
-const upload = multer({dest: './uploads/', fileFilter});
+
 const router = express.Router();
 
-router
-  .route('/upload')
-  .post(
-    authenticate,
-    attachUserToRequest,
-    upload.single('file'),
-    makeThumbnail,
-    uploadFile,
-  );
+router.route('/upload').post(authenticate, doUpload, makeThumbnail, uploadFile);
 
 router.route('/delete/:filename').delete(authenticate, deleteFile);
 
