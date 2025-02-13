@@ -4,6 +4,8 @@ import multer from 'multer';
 import {authenticate, makeThumbnail} from '../../middlewares';
 import CustomError from '../../classes/CustomError';
 import {TokenContent} from 'hybrid-types/DBTypes';
+import fs from 'fs';
+import path from 'path';
 const upload = multer({dest: './uploads/'}).single('file');
 
 const doUpload = (
@@ -28,8 +30,17 @@ const doUpload = (
       if (userId) {
         const extension = req.file.originalname.split('.').pop();
         const newFilename = `${req.file.filename}_${userId}.${extension}`;
-        res.locals.newFilename = newFilename;
-        next();
+        const newPath = path.join(req.file.destination, newFilename);
+
+        // Rename the file to the new filename
+        fs.rename(req.file.path, newPath, (renameErr) => {
+          if (renameErr) {
+            next(new CustomError(renameErr.message, 500));
+            return;
+          }
+          res.locals.newFilename = newFilename;
+          next();
+        });
       }
     }
   });
