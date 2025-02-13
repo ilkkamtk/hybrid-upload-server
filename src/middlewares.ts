@@ -61,32 +61,23 @@ const authenticate = async (
 
 const makeThumbnail = async (
   req: Request,
-  res: Response<unknown, {newFilename: string}>,
+  res: Response,
   next: NextFunction,
 ) => {
   try {
-    if (!res.locals.newFilename || !req.file) {
+    if (!req.file) {
       next(new CustomError('File not uploaded', 500));
       return;
     }
 
-    console.log('newFilename', res.locals.newFilename);
-
-    const filePath = path.resolve(
-      __dirname,
-      '..',
-      'uploads',
-      res.locals.newFilename,
-    );
-
-    console.log('polku täsä', filePath);
+    console.log('path', req.file.path);
 
     if (!req.file.mimetype.includes('video')) {
       sharp.cache(false);
-      await sharp(filePath)
+      await sharp(req.file.path)
         .resize(320, 320)
         .png()
-        .toFile(filePath + '-thumb.png')
+        .toFile(req.file.path + '-thumb.png')
         .catch((error) => {
           console.error('sharp error', error);
           next(new CustomError('Thumbnail not created by sharp', 500));
@@ -96,7 +87,7 @@ const makeThumbnail = async (
       return;
     }
 
-    await getVideoThumbnail(filePath);
+    await getVideoThumbnail(req.file.path);
 
     next();
   } catch (error) {
@@ -104,4 +95,18 @@ const makeThumbnail = async (
   }
 };
 
-export {notFound, errorHandler, authenticate, makeThumbnail};
+// add user from res.locals to req.body to be accessed by multer
+const addUserToBody = (
+  req: Request,
+  res: Response<unknown, {user: TokenContent}>,
+  next: NextFunction,
+) => {
+  // prevent injection
+  if (!req.body.user) {
+    delete req.body.user;
+  }
+  req.body.user = res.locals.user;
+  next();
+};
+
+export {notFound, errorHandler, authenticate, makeThumbnail, addUserToBody};
