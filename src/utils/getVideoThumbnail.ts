@@ -24,7 +24,7 @@ const getVideoThumbnail = (
           .input(videoUrl)
           .outputOptions([
             '-vf',
-            'fps=10,scale=320:-1:flags=lanczos',
+            'setpts=PTS/(duration/5),fps=5,scale=480:-1:flags=lanczos', // Compress timeline to 5 seconds
             '-c:v',
             'gif',
             '-f',

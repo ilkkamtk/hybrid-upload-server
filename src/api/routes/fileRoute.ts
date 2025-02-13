@@ -11,7 +11,7 @@ const storage = multer.diskStorage({
     // Get user from res.locals instead of req.body
     const userId = (req as Request).res?.locals.user.user_id;
     const extension = file.originalname.split('.').pop();
-    const newFilename = `${file.fieldname}_${userId}.${extension}`;
+    const newFilename = `${file.filename}_${userId}.${extension}`;
     cb(null, newFilename);
   },
 });
