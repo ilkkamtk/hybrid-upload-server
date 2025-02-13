@@ -7,16 +7,16 @@ const getVideoThumbnail = (
   return new Promise((resolve, reject) => {
     const thumbnails: string[] = [];
     const gifFilename =
-      './uploads/' +
-      path.basename(videoUrl, path.extname(videoUrl)) +
-      '-animation.gif';
+      './uploads/' + path.basename(videoUrl) + '-animation.gif';
 
+    // First generate thumbnails
+    ffmpeg().input(videoUrl);
     // First generate thumbnails
     ffmpeg()
       .input(videoUrl)
       .screenshots({
         count: 5,
-        filename: './uploads/%b-thumb-%i.png',
+        filename: './uploads/%b.%x-thumb-%i.png', // Changed to include original extension
         size: '640x?',
       })
       .on('filenames', (filenames) => {
