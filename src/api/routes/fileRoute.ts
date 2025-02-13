@@ -4,14 +4,16 @@ import multer from 'multer';
 import {authenticate, makeThumbnail} from '../../middlewares';
 import CustomError from '../../classes/CustomError';
 import {TokenContent} from 'hybrid-types/DBTypes';
+import randomstring from 'randomstring';
 
 const storage = multer.diskStorage({
   destination: './uploads/',
   filename: (req, file, cb) => {
-    // Get user from res.locals instead of req.body
     const userId = (req as Request).res?.locals.user.user_id;
     const extension = file.originalname.split('.').pop();
-    const newFilename = `${file.filename}_${userId}.${extension}`;
+    // generate random filename
+    const randomName = randomstring.generate(20);
+    const newFilename = `${randomName}_${userId}.${extension}`;
     cb(null, newFilename);
   },
 });

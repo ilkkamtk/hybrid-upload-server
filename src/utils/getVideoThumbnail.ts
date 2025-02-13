@@ -9,7 +9,7 @@ const getVideoThumbnail = (
     const gifFilename =
       './uploads/' +
       path.basename(videoUrl, path.extname(videoUrl)) +
-      '-animation.gif'; // Filename for the GIF
+      '-animation.webp'; // Change extension to .webp
 
     ffmpeg()
       .input(videoUrl)
@@ -24,11 +24,24 @@ const getVideoThumbnail = (
           .input(videoUrl)
           .outputOptions([
             '-vf',
-            'setpts=PTS/(duration/5),fps=5,scale=480:-1:flags=lanczos', // Compress timeline to 5 seconds
-            '-c:v',
-            'gif',
+            'setpts=PTS/(duration/5),fps=5,scale=480:-1:flags=lanczos',
+            '-vcodec',
+            'libwebp',
+            '-lossless',
+            '0',
+            '-compression_level',
+            '6',
+            '-q:v',
+            '50',
+            '-loop',
+            '0',
+            '-preset',
+            'picture',
+            '-an',
+            '-vsync',
+            '0',
             '-f',
-            'gif',
+            'webp',
           ])
           .output(gifFilename)
           .on('end', () => {
