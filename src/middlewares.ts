@@ -29,7 +29,7 @@ const errorHandler = (
 
 const authenticate = async (
   req: Request,
-  res: Response,
+  res: Response<unknown, {user: TokenContent}>,
   next: NextFunction,
 ) => {
   console.log('authenticate');
@@ -61,7 +61,7 @@ const authenticate = async (
 
 const makeThumbnail = async (
   req: Request,
-  res: Response,
+  res: Response<unknown, {newFilename: string}>,
   next: NextFunction,
 ) => {
   try {
