@@ -16,7 +16,8 @@ const getVideoThumbnail = (
         return reject(err);
       }
 
-      const duration = metadata.format.duration || 10; // Default to 10s if duration is undefined
+      const rawDuration = metadata.format.duration;
+      const duration = (typeof rawDuration === 'number' && rawDuration > 0) ? rawDuration : 10; // Default to 10s if invalid
       const speedFactor = duration / 5; // Compress full video into 5 seconds
 
       // Generate thumbnails
