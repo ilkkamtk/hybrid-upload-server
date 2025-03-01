@@ -17,9 +17,11 @@ const getVideoThumbnail = (
       }
 
       const rawDuration = metadata.format.duration;
-      const duration = (typeof rawDuration === 'number' && rawDuration > 0) ? rawDuration : 10; // Default to 10s if invalid
+      const duration =
+        typeof rawDuration === 'number' && rawDuration > 0 ? rawDuration : 10; // Default to 10s if invalid
       const speedFactor = duration / 5; // Compress full video into 5 seconds
-
+      const validSpeedFactor =
+        typeof speedFactor === 'number' && speedFactor > 0 ? speedFactor : 1;
       // Generate thumbnails
       ffmpeg()
         .input(videoUrl)
@@ -37,7 +39,7 @@ const getVideoThumbnail = (
             .input(videoUrl)
             .outputOptions([
               '-filter_complex',
-              `[0:v]setpts=(PTS-STARTPTS)/${speedFactor},fps=10,scale=320:-1:flags=lanczos,split[a][b];[a]palettegen=max_colors=32[p];[b][p]paletteuse`,
+              `[0:v]setpts=(PTS-STARTPTS)/${validSpeedFactor},fps=10,scale=320:-1:flags=lanczos,split[a][b];[a]palettegen=max_colors=32[p];[b][p]paletteuse`,
               '-c:v',
               'gif',
               '-compression_level',
