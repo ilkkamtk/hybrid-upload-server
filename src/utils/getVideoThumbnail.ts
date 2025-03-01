@@ -9,53 +9,56 @@ const getVideoThumbnail = (
     const originalName = path.basename(videoUrl);
     const gifFilename = `./uploads/${originalName}-animation.gif`;
 
-    // First generate thumbnails
-    ffmpeg().input(videoUrl);
-    // First generate thumbnails
-    ffmpeg()
-      .input(videoUrl)
-      .screenshots({
-        count: 5,
-        filename: `./uploads/${originalName}-thumb-%i.png`,
-        size: '640x?',
-      })
-      .on('filenames', (filenames) => {
-        thumbnails.push(...filenames);
-      })
-      .on('end', () => {
-        // Then generate GIF after thumbnails are done
-        ffmpeg()
-          .input(videoUrl)
-          .outputOptions([
-            '-vf',
-            'fps=5,scale=480:-1:flags=lanczos',
-            '-c:v',
-            'gif',
-            '-f',
-            'gif',
-          ])
-          .output(gifFilename)
-          .on('end', () => {
-            // Both processes completed successfully
-            resolve({
-              thumbnails,
-              gif: gifFilename,
-            });
-          })
-          .on('error', (err) => {
-            console.log('GIF generation error:', err);
-            // Still resolve with thumbnails even if GIF fails
-            resolve({
-              thumbnails,
-              gif: '',
-            });
-          })
-          .run();
-      })
-      .on('error', (err) => {
-        console.log('Screenshot generation error:', err);
-        reject(err);
-      });
+    // First, get video duration
+    ffmpeg.ffprobe(videoUrl, (err, metadata) => {
+      if (err) {
+        console.log('Error retrieving video metadata:', err);
+        return reject(err);
+      }
+
+      const duration = metadata.format.duration || 10; // Default to 10s if duration is undefined
+      const speedFactor = duration / 5; // Compress full video into 5 seconds
+
+      // Generate thumbnails
+      ffmpeg()
+        .input(videoUrl)
+        .screenshots({
+          count: 5,
+          filename: `./uploads/${originalName}-thumb-%i.png`,
+          size: '320x?',
+        })
+        .on('filenames', (filenames) => {
+          thumbnails.push(...filenames);
+        })
+        .on('end', () => {
+          // Generate GIF after thumbnails are done
+          ffmpeg()
+            .input(videoUrl)
+            .outputOptions([
+              '-filter_complex',
+              `[0:v]setpts=(PTS-STARTPTS)/${speedFactor},fps=10,scale=320:-1:flags=lanczos,split[a][b];[a]palettegen=max_colors=32[p];[b][p]paletteuse`,
+              '-c:v',
+              'gif',
+              '-compression_level',
+              '50',
+              '-f',
+              'gif',
+            ])
+            .output(gifFilename)
+            .on('end', () => {
+              resolve({thumbnails, gif: gifFilename});
+            })
+            .on('error', (err) => {
+              console.log('GIF generation error:', err);
+              resolve({thumbnails, gif: ''}); // Return thumbnails even if GIF fails
+            })
+            .run();
+        })
+        .on('error', (err) => {
+          console.log('Screenshot generation error:', err);
+          reject(err);
+        });
+    });
   });
 };
 
